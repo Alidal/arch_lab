@@ -83,3 +83,6 @@ ENV/
 
 # Spyder project settings
 .spyderproject
+lab1_doc/
+*.html
+*.json

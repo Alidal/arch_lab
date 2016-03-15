@@ -1,51 +1,47 @@
-from pressure_table import PressureStatistic
+"""
+Interface module. Contains all function, that provides interface functionality.
+"""
 import dateutil.parser
+from pressure_table import PressureStatistic
+from console_input import get_main_menu_choice, get_date_choice, get_pressure_choice
 
 
 def main_interface():
+    """
+    Main interface function. Provides menu functionality.
+    """
+    pressure_stat = PressureStatistic()
     while True:
-        choice = input(
-            "Choose one of menu items:\n" +
-            "1. Add today value.\n" +
-            "2. Update existing record.\n" +
-            "3. Delete record.\n" +
-            "4. Show statistic for last week.\n" +
-            "5. Show statistic for last month.\n" +
-            "6. Exit.\n\n" +
-            "Enter value: "
-        )
         try:
-            choice = int(choice)
+            choice = int(get_main_menu_choice())
             assert(0 < choice < 7)
-            break
+
+            if choice == 1:
+                pressure_stat.add(input_pressure())
+            elif choice == 2:
+                pressure_stat.update(input_date(), input_pressure())
+            elif choice == 3:
+                pressure_stat.delete(input_date())
+            elif choice == 4:
+                pressure_stat.show_for_week()
+            elif choice == 5:
+                pressure_stat.show_for_month()
+            elif choice == 6:
+                return
         except ValueError:
-            print("Wrong value! Enter number.")
+                print("Wrong value! Enter number.")
         except AssertionError:
             print("Enter value between 1 and 6.")
-
-    pressure_stat = PressureStatistic()
-    if choice == 1:
-        pressure_stat.add(input_pressure())
-    elif choice == 2:
-        pressure_stat.update(input_date(), input_pressure())
-    elif choice == 3:
-        pressure_stat.delete(input_date())
-    elif choice == 4:
-        pressure_stat.show_for_week()
-    elif choice == 5:
-        pressure_stat.show_for_month()
-    elif choice == 6:
-        return
+        except Exception as e:
+            print(e.args[0])
 
 
 def input_pressure():
+    """
+    Input logic for blood pressure. Validates entered data.
+    """
     while True:
-        pressure = input(
-            """
-            Enter values in format: systolic pressure, diastolic pressure 
-            (remember about comma):
-            """
-        )
+        pressure = get_pressure_choice()
         pressure = pressure.split(',')
         if len(pressure) == 2 and\
                 0 < int(pressure[0]) < 250 and 0 < int(pressure[1]) < 250:
@@ -55,12 +51,11 @@ def input_pressure():
 
 
 def input_date():
+    """
+    Input logic for date. Validates entered data.
+    """
     while True:
-        date = input(
-            """
-            Enter date in format: 01.11.2016 (remember about comma):
-            """
-        )
+        date = get_date_choice()
         try:
             return dateutil.parser.parse(date)
         except ValueError:
