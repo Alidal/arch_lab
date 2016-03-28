@@ -2,8 +2,11 @@
 Interface module. Contains all function, that provides interface functionality.
 """
 import dateutil.parser
-from pressure_table import PressureStatistic
-from console_input import get_main_menu_choice, get_date_choice, get_pressure_choice
+from datetime import datetime
+
+from model import PressureStatistic
+from view import get_main_menu_choice, get_date_choice, print_exception,\
+    get_pressure_choice, print_for_week, print_for_month, print_all
 
 
 def main_interface():
@@ -14,7 +17,7 @@ def main_interface():
     while True:
         try:
             choice = int(get_main_menu_choice())
-            assert(0 < choice < 7)
+            assert(0 < choice < 8)
 
             if choice == 1:
                 pressure_stat.add(input_pressure())
@@ -23,17 +26,21 @@ def main_interface():
             elif choice == 3:
                 pressure_stat.delete(input_date())
             elif choice == 4:
-                pressure_stat.show_for_week()
+                print_for_week(pressure_stat)
             elif choice == 5:
-                pressure_stat.show_for_month()
+                print_for_month(pressure_stat)
             elif choice == 6:
+                print_all(pressure_stat)
+            elif choice == 7:
                 return
+
         except ValueError:
-                print("Wrong value! Enter number.")
+            print_exception("Wrong value! Enter number.")
         except AssertionError:
-            print("Enter value between 1 and 6.")
+            print_exception("Enter value between 1 and 7.")
         except Exception as e:
-            print(e.args[0])
+            print_exception(e.args[0])
+            return
 
 
 def input_pressure():
@@ -42,12 +49,12 @@ def input_pressure():
     """
     while True:
         pressure = get_pressure_choice()
-        pressure = pressure.split(',')
+        pressure = pressure.replace(" ", "").split(',')
         if len(pressure) == 2 and\
                 0 < int(pressure[0]) < 250 and 0 < int(pressure[1]) < 250:
             return pressure
 
-        print("You've entered wrong value. Try again")
+        print_exception("You've entered wrong value. Try again")
 
 
 def input_date():
@@ -57,6 +64,11 @@ def input_date():
     while True:
         date = get_date_choice()
         try:
-            return dateutil.parser.parse(date)
+            date = dateutil.parser.parse(date)
+            assert(date < datetime.now)
+            return date
         except ValueError:
-            print("You've entered wrong value. Try again")
+            print_exception("You've entered wrong value. Try again")
+
+if __name__ == "__main__":
+    main_interface()

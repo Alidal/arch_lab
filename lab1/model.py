@@ -1,7 +1,5 @@
 import json
-import dateutil.parser
-
-from datetime import datetime, timedelta
+from datetime import datetime
 
 
 class PressureStatistic(object):
@@ -21,15 +19,10 @@ class PressureStatistic(object):
         """
         json.dump(self.table, open("db.json", "w"))
 
-    def _show_for_time(self, time):
-        last_week = datetime.now() - time
-        for date, pressure in self.table.items():
-            if dateutil.parser.parse(date) > last_week:
-                print("{} - {}, {}".format(date, pressure[0], pressure[1]))
-
     def add(self, pressure_list):
         """
         Add pressure value for today.
+
         Raises exception, if we already added todays values.
 
         >>> ps = PressureStatistic()
@@ -88,39 +81,3 @@ class PressureStatistic(object):
             del self.table[date.isoformat().split("T")[0]]
         except:
             raise Exception("Wrong date.")
-
-    def show_for_week(self):
-        """
-        Show records only for last week. Older records wont be showned.
-
-        >>> ps = PressureStatistic()
-        >>> tmp = ps.table
-        >>> ps.table = {}
-        >>> ps.update(datetime(2016, 3, 11, 0, 0), ['120', '80'])
-        >>> ps.update(datetime(2016, 2, 11, 0, 0), ['120', '80'])
-        >>> ps.show_for_week()
-        Pressure statistic for last week:
-        2016-03-11 - 120, 80
-        >>> ps.table = tmp
-        """
-        print("Pressure statistic for last week:")
-        self._show_for_time(timedelta(weeks=1))
-
-    def show_for_month(self):
-        """
-        Show records only for last week. Older records wont be showned.
-
-        >>> ps = PressureStatistic()
-        >>> tmp = ps.table
-        >>> ps.table = {}
-        >>> ps.update(datetime(2016, 3, 11, 0, 0), ['120', '80'])
-        >>> ps.update(datetime(2016, 3, 1, 0, 0), ['120', '80'])
-        >>> ps.update(datetime(2016, 2, 1, 0, 0), ['120', '80'])
-        >>> ps.show_for_month()
-        Pressure statistic for last month:
-        2016-03-11 - 120, 80
-        2016-03-01 - 120, 80
-        >>> ps.table = tmp
-        """
-        print("Pressure statistic for last month:")
-        self._show_for_time(timedelta(days=30))
