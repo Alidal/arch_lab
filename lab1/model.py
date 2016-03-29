@@ -1,23 +1,29 @@
-import json
+import configparser
+import importlib
 from datetime import datetime
+
+config = configparser.ConfigParser()
+config.read('config.ini')
+backend = importlib.import_module('backends.get_%s' % config['backend']['type'])
 
 
 class PressureStatistic(object):
     """
     Class, that provides basic CRUD functionality for arterial pressure info.
     """
+    table = None
 
     def __init__(self, *args, **kwargs):
         """
         Initial method, that loads saved pressure statistic from json file.
         """
-        self.table = json.load(open("db.json", "r"))
+        self.table = backend.get() or {}
 
     def __del__(self):
         """
         Save pressure statistics to json file on object deletion.
         """
-        json.dump(self.table, open("db.json", "w"))
+        backend.set(self.table)
 
     def add(self, pressure_list):
         """
@@ -37,9 +43,9 @@ class PressureStatistic(object):
         Exception: You've already added value today.
         >>> ps.table = tmp
         """
-        now = datetime.now()
-        if now.isoformat().split("T")[0] not in self.table:
-            self.table[now.isoformat().split("T")[0]] = pressure_list
+        today = datetime.now().isoformat().split("T")[0]
+        if today not in self.table:
+            self.table[today] = pressure_list
         else:
             raise Exception("You've already added value today.")
 

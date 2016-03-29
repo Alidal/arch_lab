@@ -37,11 +37,14 @@ def get_date_choice():
 def print_for_time(pressure_stat, time):
     """
     Print records that have date more than passed `time` parameter.
+
     """
     lower_border = datetime.now() - time
     for date, pressure in pressure_stat.table.items():
         if dateutil.parser.parse(date) > lower_border:
             print("{} - {}, {}".format(date, pressure[0], pressure[1]))
+    if not pressure_stat.table:
+        print_exception("Table is empty.")
 
 
 def print_for_week(pressure_stat):
@@ -51,11 +54,11 @@ def print_for_week(pressure_stat):
     >>> ps = PressureStatistic()
     >>> tmp = ps.table
     >>> ps.table = {}
-    >>> ps.update(datetime(2016, 3, 11, 0, 0), ['120', '80'])
+    >>> ps.update(datetime(2016, 3, 25, 0, 0), ['120', '80'])
     >>> ps.update(datetime(2016, 2, 11, 0, 0), ['120', '80'])
-    >>> ps.show_for_week()
+    >>> show_for_week(ps)
     Pressure statistic for last week:
-    2016-03-11 - 120, 80
+    2016-03-25 - 120, 80
     >>> ps.table = tmp
     """
     print("Pressure statistic for last week:")
@@ -72,7 +75,7 @@ def print_for_month(pressure_stat):
     >>> ps.update(datetime(2016, 3, 11, 0, 0), ['120', '80'])
     >>> ps.update(datetime(2016, 3, 1, 0, 0), ['120', '80'])
     >>> ps.update(datetime(2016, 2, 1, 0, 0), ['120', '80'])
-    >>> ps.show_for_month()
+    >>> show_for_month(ps)
     Pressure statistic for last month:
     2016-03-11 - 120, 80
     2016-03-01 - 120, 80
@@ -92,7 +95,7 @@ def print_all(pressure_stat):
     >>> ps.update(datetime(2016, 3, 11, 0, 0), ['120', '80'])
     >>> ps.update(datetime(2016, 3, 1, 0, 0), ['120', '80'])
     >>> ps.update(datetime(2016, 2, 1, 0, 0), ['120', '80'])
-    >>> ps.show_for_month()
+    >>> print_all(ps)
     Pressure statistic for all time:
     2016-03-11 - 120, 80
     2016-03-01 - 120, 80
@@ -104,5 +107,5 @@ def print_all(pressure_stat):
 
 
 def print_exception(text):
-    """Function that highlights exceptions."""
+    """Highlight exceptions."""
     print("\033[91m{}\033[0m".format(text))

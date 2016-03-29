@@ -9,7 +9,7 @@ from view import get_main_menu_choice, get_date_choice, print_exception,\
     get_pressure_choice, print_for_week, print_for_month, print_all
 
 
-def main_interface():
+def main():
     """
     Main interface function. Provides menu functionality.
     """
@@ -71,4 +71,4 @@ def input_date():
             print_exception("You've entered wrong value. Try again")
 
 if __name__ == "__main__":
-    main_interface()
+    main()
