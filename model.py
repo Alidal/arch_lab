@@ -1,3 +1,6 @@
+"""
+Model module, that contains all functions, that we need to manipulate data.
+"""
 import configparser
 import importlib
 from datetime import date

@@ -1,3 +1,7 @@
+"""
+View module, that contains all functions that interacts with command line.
+"""
+
 import argparse
 import configparser
 import dateutil.parser
