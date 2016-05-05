@@ -1,111 +1,121 @@
+import configparser
 import dateutil.parser
-from datetime import datetime, timedelta
+from datetime import date, timedelta
+
+from lang import lang
 
 
-def get_main_menu_choice():
-    """
-    Get main menu input from console.
-    """
-    return input("""
-Choose one of menu items:
-1. Add today value.
-2. Update existing record.
-3. Delete record.
-4. Show statistic for last week.
-5. Show statistic for last month.
-6. Show all records in table.
-7. Exit.\n
-Enter value: """)
+class View:
+    model = None
+    responses = {}
 
+    def __init__(self, model=None):
+        self.model = model
 
-def get_pressure_choice():
-    """
-    Get pressure from console.
-    """
-    return input("""
-Enter values in format: systolic pressure, diastolic pressure
-(remember about comma):""")
+        config = configparser.ConfigParser()
+        config.read('config.ini')
+        self.responses = lang[config['language']['type']]
 
+    def get_main_menu_choice_cli(self):
+        """
+        Get main menu input from console. (by keys)
+        """
+        return input("""
+    Choose one of menu items:
+    1. Add today value.
+    2. Update existing record.
+    3. Delete record.
+    4. Show statistic for last week.
+    5. Show statistic for last month.
+    6. Show all records in table.
+    7. Exit.\n
+    Enter value: """)
 
-def get_date_choice():
-    """
-    Get date from console.
-    """
-    return input("Enter date in format: 01.11.2016:")
+    def get_main_menu_choice_simple(self):
+        """
+        Get main menu input from console. (interactive mode)
+        """
+        return input(self.responses['main_menu_cli_choice'])
 
+    def get_pressure_choice(self):
+        """
+        Get pressure from console.
+        """
+        return input(self.responses['pressure_choice'])
 
-def print_for_time(pressure_stat, time):
-    """
-    Print records that have date more than passed `time` parameter.
+    def get_date_choice(self):
+        """
+        Get date from console.
+        """
+        return input(self.responses['date_choice'])
 
-    """
-    lower_border = datetime.now() - time
-    for date, pressure in pressure_stat.table.items():
-        if dateutil.parser.parse(date) > lower_border:
-            print("{} - {}, {}".format(date, pressure[0], pressure[1]))
-    if not pressure_stat.table:
-        print_exception("Table is empty.")
+    def print_for_time(self, time):
+        """
+        Print records that have date more than passed `time` parameter.
+        """
+        lower_border = date.today() - time
+        for record_date, pressure in self.model.table.items():
+            if dateutil.parser.parse(record_date).date() > lower_border:
+                print("{} - {}, {}".format(record_date, pressure[0], pressure[1]))
+        if not self.model.table:
+            self.print_exception(self.responses['empty_table'])
 
+    def print_for_week(self):
+        """
+        Show records only for last week. Older records wont be showned.
 
-def print_for_week(pressure_stat):
-    """
-    Show records only for last week. Older records wont be showned.
+        >>> ps = PressureStatistics()
+        >>> tmp = ps.table
+        >>> ps.table = {}
+        >>> ps.update(date(2016, 3, 25), ['120', '80'])
+        >>> ps.update(date(2016, 2, 11), ['120', '80'])
+        >>> show_for_week(ps)
+        Pressure statistic for last week:
+        2016-03-25 - 120, 80
+        >>> ps.table = tmp
+        """
+        print(self.responses['ps_for_week'])
+        self.print_for_time(timedelta(weeks=1))
 
-    >>> ps = PressureStatistic()
-    >>> tmp = ps.table
-    >>> ps.table = {}
-    >>> ps.update(datetime(2016, 3, 25, 0, 0), ['120', '80'])
-    >>> ps.update(datetime(2016, 2, 11, 0, 0), ['120', '80'])
-    >>> show_for_week(ps)
-    Pressure statistic for last week:
-    2016-03-25 - 120, 80
-    >>> ps.table = tmp
-    """
-    print("Pressure statistic for last week:")
-    print_for_time(pressure_stat, timedelta(weeks=1))
+    def print_for_month(self):
+        """
+        Show records only for last week. Older records wont be showned.
 
+        >>> ps = PressureStatistics()
+        >>> tmp = ps.table
+        >>> ps.table = {}
+        >>> ps.update(date(2016, 3, 11), ['120', '80'])
+        >>> ps.update(date(2016, 3, 1), ['120', '80'])
+        >>> ps.update(date(2016, 2, 1), ['120', '80'])
+        >>> show_for_month(ps)
+        Pressure statistic for last month:
+        2016-03-11 - 120, 80
+        2016-03-01 - 120, 80
+        >>> ps.table = tmp
+        """
+        print(self.responses['ps_for_month'])
+        self.print_for_time(timedelta(days=30))
 
-def print_for_month(pressure_stat):
-    """
-    Show records only for last week. Older records wont be showned.
+    def print_all(self):
+        """
+        Show all records.
 
-    >>> ps = PressureStatistic()
-    >>> tmp = ps.table
-    >>> ps.table = {}
-    >>> ps.update(datetime(2016, 3, 11, 0, 0), ['120', '80'])
-    >>> ps.update(datetime(2016, 3, 1, 0, 0), ['120', '80'])
-    >>> ps.update(datetime(2016, 2, 1, 0, 0), ['120', '80'])
-    >>> show_for_month(ps)
-    Pressure statistic for last month:
-    2016-03-11 - 120, 80
-    2016-03-01 - 120, 80
-    >>> ps.table = tmp
-    """
-    print("Pressure statistic for last month:")
-    print_for_time(pressure_stat, timedelta(days=30))
+        >>> ps = PressureStatistics()
+        >>> tmp = ps.table
+        >>> ps.table = {}
+        >>> ps.update(date(2016, 3, 11), ['120', '80'])
+        >>> ps.update(date(2016, 3, 1), ['120', '80'])
+        >>> ps.update(date(2016, 2, 1), ['120', '80'])
+        >>> print_all(ps)
+        Pressure statistic for all time:
+        2016-03-11 - 120, 80
+        2016-03-01 - 120, 80
+        2016-02-01 - 120, 80
+        >>> ps.table = tmp
+        """
+        print(self.responses['ps_all'])
+        print(self.model)
 
-
-def print_all(pressure_stat):
-    """
-    Show all records.
-
-    >>> ps = PressureStatistic()
-    >>> tmp = ps.table
-    >>> ps.table = {}
-    >>> ps.update(datetime(2016, 3, 11, 0, 0), ['120', '80'])
-    >>> ps.update(datetime(2016, 3, 1, 0, 0), ['120', '80'])
-    >>> ps.update(datetime(2016, 2, 1, 0, 0), ['120', '80'])
-    >>> print_all(ps)
-    Pressure statistic for all time:
-    2016-03-11 - 120, 80
-    2016-03-01 - 120, 80
-    2016-02-01 - 120, 80
-    >>> ps.table = tmp
-    """
-    print("Pressure statistic for all time:")
-    print_for_time(pressure_stat, timedelta(weeks=10000))
-
-
-def print_exception(text):
-    """Highlight exceptions."""
-    print("\033[91m{}\033[0m".format(text))
+    def print_exception(self, text):
+        """Highlight exceptions."""
+        print("\033[91m{}\033[0m".format(text))
