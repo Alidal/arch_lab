@@ -1,5 +1,5 @@
 """
-Interface module. Contains all function, that provides interface functionality.
+Controller module. Contains all function, that provides interface functionality.
 """
 import dateutil.parser
 import configparser
@@ -12,6 +12,13 @@ from view import View
 class Controller:
 
     def __init__(self, view=None, model=None):
+        """
+        Initial function. If parameters don't passed
+        creates view and model instances for controller
+        :params:
+            view: View instance
+            model: Model instance
+        """
         if not model:
             model = PressureStatistics()
         if not view:
@@ -23,15 +30,17 @@ class Controller:
         """
         Main interface function. Provides menu functionality.
         """
-
         config = configparser.ConfigParser()
         config.read('config.ini')
         interface_type = config['interface']['type']
-
+        stop_execution = False
         while True:
             try:
-                choice = int(self.view.get_main_menu_choice_cli()) if interface_type == "cli" else\
-                    int(self.view.get_main_menu_choice_simple())
+                if interface_type == "cli":
+                    choice = int(self.view.get_main_menu_choice_cli())
+                    stop_execution = True
+                else:
+                    choice = int(self.view.get_main_menu_choice_simple())
                 assert(0 < choice < 8)
 
                 if choice == 1:
@@ -49,6 +58,8 @@ class Controller:
                 elif choice == 7:
                     return
 
+                if stop_execution:
+                    return
             except ValueError:
                 self.view.print_exception("Wrong value! Enter number.")
             except AssertionError:

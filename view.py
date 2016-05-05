@@ -1,3 +1,4 @@
+import argparse
 import configparser
 import dateutil.parser
 from datetime import date, timedelta
@@ -6,8 +7,6 @@ from lang import lang
 
 
 class View:
-    model = None
-    responses = {}
 
     def __init__(self, model=None):
         self.model = model
@@ -18,18 +17,31 @@ class View:
 
     def get_main_menu_choice_cli(self):
         """
-        Get main menu input from console. (by keys)
+        Get main menu input from console. (by command options)
         """
-        return input("""
-    Choose one of menu items:
-    1. Add today value.
-    2. Update existing record.
-    3. Delete record.
-    4. Show statistic for last week.
-    5. Show statistic for last month.
-    6. Show all records in table.
-    7. Exit.\n
-    Enter value: """)
+        parser = argparse.ArgumentParser()
+        parser.add_argument("-a", "--addtoday", action="store_true")
+        parser.add_argument("-u", "--update", action="store_true")
+        parser.add_argument("-d", "--delete", action="store_true")
+        parser.add_argument("-pw", "--printweek", action="store_true")
+        parser.add_argument("-pm", "--printmonth", action="store_true")
+        parser.add_argument("-p", "--printall", action="store_true")
+
+        arguments = parser.parse_args()
+        if arguments.addtoday:
+            return 1
+        elif arguments.update:
+            return 2
+        elif arguments.delete:
+            return 3
+        elif arguments.printweek:
+            return 4
+        elif arguments.printmonth:
+            return 5
+        elif arguments.printall:
+            return 6
+        else:
+            raise Exception("Choose option")
 
     def get_main_menu_choice_simple(self):
         """
@@ -54,10 +66,12 @@ class View:
         Print records that have date more than passed `time` parameter.
         """
         lower_border = date.today() - time
+        written = False
         for record_date, pressure in self.model.table.items():
             if dateutil.parser.parse(record_date).date() > lower_border:
                 print("{} - {}, {}".format(record_date, pressure[0], pressure[1]))
-        if not self.model.table:
+                written = True
+        if not written:
             self.print_exception(self.responses['empty_table'])
 
     def print_for_week(self):

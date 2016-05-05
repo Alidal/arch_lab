@@ -1,6 +1,6 @@
 import configparser
 import importlib
-from datetime import datetime
+from datetime import date
 
 config = configparser.ConfigParser()
 config.read('config.ini')
@@ -11,7 +11,6 @@ class PressureStatistics(object):
     """
     Class, that provides basic CRUD functionality for arterial pressure info.
     """
-    table = None
 
     def __init__(self, *args, **kwargs):
         """
@@ -28,22 +27,9 @@ class PressureStatistics(object):
     def add(self, pressure_list):
         """
         Add pressure value for today.
-
         Raises exception, if we already added todays values.
-
-        >>> ps = PressureStatistics()
-        >>> tmp = ps.table
-        >>> ps.table = {}
-        >>> ps.add(['120', '80'])
-        >>> len(ps.table) == 1
-        True
-        >>> ps.add(['120', '80'])
-        Traceback (most recent call last):
-        ...
-        Exception: You've already added value today.
-        >>> ps.table = tmp
         """
-        today = datetime.now().isoformat().split("T")[0]
+        today = date.today().isoformat()
         if today not in self.table:
             self.table[today] = pressure_list
         else:
@@ -53,35 +39,16 @@ class PressureStatistics(object):
         """
         Update or create new record in table.
         Args:
-            date - datetime object. Points, what day we need to update.
+            date - date object. Points, what day we need to update.
             pressure_list - list object (size=2).
-
-        >>> ps = PressureStatistics()
-        >>> tmp = ps.table
-        >>> ps.table = {}
-        >>> ps.update(datetime(2016, 3, 11, 0, 0), ['120', '80'])
-        >>> ps.table['2016-03-11'] == ['120', '80']
-        True
-        >>> ps.table = tmp
         """
-        self.table[date.isoformat().split("T")[0]] = pressure_list
+        self.table[date.isoformat()] = pressure_list
 
     def delete(self, date):
         """
         Drops record by key.
         Args:
-            date - datetime object. Points, what day we need to update.
-
-        >>> ps = PressureStatistics()
-        >>> tmp = ps.table
-        >>> ps.table = {}
-        >>> ps.update(datetime(2016, 3, 11, 0, 0), ['120', '80'])
-        >>> len(ps.table) == 1
-        True
-        >>> ps.delete(datetime(2016, 3, 11, 0, 0))
-        >>> ps.table
-        {}
-        >>> ps.table = tmp
+            date - date object. Points, what day we need to update.
         """
         try:
             del self.table[date.isoformat().split("T")[0]]
@@ -89,9 +56,14 @@ class PressureStatistics(object):
             raise Exception("Wrong date.")
 
     def __str__(self):
+        """
+        String representation for class instance.
+        Returns table if table exists. Otherway returns message,
+        that table is empty.
+        """
         string = ""
-        for date, pressure in self.table.items():
-            string += "{} - {}, {}\n".format(date, pressure[0], pressure[1])
+        for date_, pressure in self.table.items():
+            string += "{} - {}, {}\n".format(date_, pressure[0], pressure[1])
         if not self.table:
             string = "Table is empty."
         return string
