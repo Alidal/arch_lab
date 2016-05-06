@@ -1,29 +1,65 @@
-import io
 import pickle
+
 from unittest import TestCase
-from unittest import mock
-from backends import get_pickle
+from unittest.mock import patch, mock_open
+from backends import get_pickle, get_json, get_yaml
 
 
-@mock.patch('backends.get_pickle.get')
-@mock.patch('backends.get_pickle.set')
 class TestPickleBackend(TestCase):
-    fbk = get_pickle.PickleFileBackend
-    testval = [123, 123]
+    testval = {"2016-05-04": ["120", "80"]}
 
-    def setUp(self):
-        self.fakefil = io.BytesIO()
+    def test_get(self):
+        with patch("pickle.load", return_value=self.testval):
+            with patch.object(get_pickle, 'open', mock_open(), create=True) as m:
+                result = get_pickle.get()
 
-    def test_save(self, mopen):
-        mopen().__enter__.return_value = self.fakefil
-        self.fbk.save("/tmp/blah", self.testval)
+        m.assert_called_once_with('backends/db.pkl', 'rb')
+        self.assertEqual(result, self.testval)
 
-        self.fakefil.seek(0)
-        self.assertEqual(self.testval, pickle.load(self.fakefil))
+    def test_set(self):
+        m = mock_open()
+        with patch.object(get_pickle, 'open', m, create=True):
+            get_pickle.set(self.testval)
+        m.assert_called_once_with('backends/db.pkl', 'wb')
+        handle = m()
+        handle.write.assert_called_once_with(pickle.dumps(self.testval))
 
-    def test_read_correct(self, mopen):
-        mopen().__enter__.return_value = self.fakefil
-        pickle.dump(self.testval, self.fakefil)
 
-        self.fakefil.seek(0)
-        self.assertEqual(self.testval, self.fbk.load(self.fakefil))
+class TestJsonBackend(TestCase):
+    testval = {"2016-05-04": ["120", "80"]}
+
+    def test_get(self):
+        with patch("json.load", return_value=self.testval):
+            with patch.object(get_json, 'open', mock_open(), create=True) as m:
+                result = get_json.get()
+
+        m.assert_called_with('backends/db.json', 'r')
+        self.assertEqual(result, self.testval)
+
+    def test_set(self):
+        with patch("json.dump") as json_mock:
+            m = mock_open()
+            with patch.object(get_json, 'open', m, create=True):
+                get_json.set(self.testval)
+            m.assert_called_with('backends/db.json', 'w')
+            self.assertEqual(len(json_mock.mock_calls), 1)
+
+
+class TestYamlBackend(TestCase):
+    testval = {"2016-05-04": ["120", "80"]}
+
+    def test_get(self):
+        with patch("yaml.load", return_value=self.testval):
+            with patch.object(get_yaml, 'open', mock_open(), create=True) as m:
+                result = get_yaml.get()
+
+        m.assert_called_with('backends/db.yaml', 'r')
+        self.assertEqual(result, self.testval)
+
+    def test_set(self):
+        with patch("yaml.dump") as yaml_mock:
+            m = mock_open()
+            with patch.object(get_yaml, 'open', m, create=True):
+                get_yaml.set(self.testval)
+            m.assert_called_with('backends/db.yaml', 'w')
+            self.assertEqual(len(yaml_mock.mock_calls), 1)

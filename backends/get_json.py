@@ -1,3 +1,7 @@
+"""
+Module for using json as serializer. Provides methods for retrieving
+data and writing.
+"""
 import json
 
 

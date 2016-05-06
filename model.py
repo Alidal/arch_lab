@@ -65,7 +65,7 @@ class PressureStatistics(object):
         that table is empty.
         """
         string = ""
-        for date_, pressure in self.table.items():
+        for date_, pressure in sorted(self.table.items()):
             string += "{} - {}, {}\n".format(date_, pressure[0], pressure[1])
         if not self.table:
             string = "Table is empty."

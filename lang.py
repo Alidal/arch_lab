@@ -26,6 +26,7 @@ Enter values in format: systolic pressure, diastolic pressure
         "empty_table": "Table is empty",
         "ps_for_week": "\nPressure statistic for last week:",
         "ps_for_month": "\nPressure statistic for last month:",
-        "ps_all": "\nPressure statistic for all time:"
+        "ps_all": "\nPressure statistic for all time:",
+        "choose_valid_option": "Choose valid option",
     }
 }

@@ -1,5 +1,5 @@
 """
-View module, that contains all functions that interacts with command line.
+View class, that contains all functions that interacts with command line.
 """
 
 import argparse
@@ -45,7 +45,7 @@ class View:
         elif arguments.printall:
             return 6
         else:
-            raise Exception("Choose option")
+            raise Exception(self.responses['choose_valid_option'])
 
     def get_main_menu_choice_simple(self):
         """
@@ -71,7 +71,7 @@ class View:
         """
         lower_border = date.today() - time
         written = False
-        for record_date, pressure in self.model.table.items():
+        for record_date, pressure in sorted(self.model.table.items()):
             if dateutil.parser.parse(record_date).date() > lower_border:
                 print("{} - {}, {}".format(record_date, pressure[0], pressure[1]))
                 written = True
