@@ -1,8 +1,6 @@
 """
 View class, that contains all functions that interacts with command line.
 """
-
-import argparse
 import configparser
 import dateutil.parser
 from datetime import date, timedelta
@@ -19,35 +17,7 @@ class View:
         config.read('config.ini')
         self.responses = lang[config['language']['type']]
 
-    def get_main_menu_choice_cli(self):
-        """
-        Get main menu input from console. (by command options)
-        """
-        parser = argparse.ArgumentParser()
-        parser.add_argument("-a", "--addtoday", action="store_true")
-        parser.add_argument("-u", "--update", action="store_true")
-        parser.add_argument("-d", "--delete", action="store_true")
-        parser.add_argument("-pw", "--printweek", action="store_true")
-        parser.add_argument("-pm", "--printmonth", action="store_true")
-        parser.add_argument("-p", "--printall", action="store_true")
-
-        arguments = parser.parse_args()
-        if arguments.addtoday:
-            return 1
-        elif arguments.update:
-            return 2
-        elif arguments.delete:
-            return 3
-        elif arguments.printweek:
-            return 4
-        elif arguments.printmonth:
-            return 5
-        elif arguments.printall:
-            return 6
-        else:
-            raise Exception(self.responses['choose_valid_option'])
-
-    def get_main_menu_choice_simple(self):
+    def get_main_menu_choice(self):
         """
         Get main menu input from console. (interactive mode)
         """
@@ -81,16 +51,6 @@ class View:
     def print_for_week(self):
         """
         Show records only for last week. Older records wont be showned.
-
-        >>> ps = PressureStatistics()
-        >>> tmp = ps.table
-        >>> ps.table = {}
-        >>> ps.update(date(2016, 3, 25), ['120', '80'])
-        >>> ps.update(date(2016, 2, 11), ['120', '80'])
-        >>> show_for_week(ps)
-        Pressure statistic for last week:
-        2016-03-25 - 120, 80
-        >>> ps.table = tmp
         """
         print(self.responses['ps_for_week'])
         self.print_for_time(timedelta(weeks=1))
@@ -98,18 +58,6 @@ class View:
     def print_for_month(self):
         """
         Show records only for last week. Older records wont be showned.
-
-        >>> ps = PressureStatistics()
-        >>> tmp = ps.table
-        >>> ps.table = {}
-        >>> ps.update(date(2016, 3, 11), ['120', '80'])
-        >>> ps.update(date(2016, 3, 1), ['120', '80'])
-        >>> ps.update(date(2016, 2, 1), ['120', '80'])
-        >>> show_for_month(ps)
-        Pressure statistic for last month:
-        2016-03-11 - 120, 80
-        2016-03-01 - 120, 80
-        >>> ps.table = tmp
         """
         print(self.responses['ps_for_month'])
         self.print_for_time(timedelta(days=30))
@@ -117,19 +65,6 @@ class View:
     def print_all(self):
         """
         Show all records.
-
-        >>> ps = PressureStatistics()
-        >>> tmp = ps.table
-        >>> ps.table = {}
-        >>> ps.update(date(2016, 3, 11), ['120', '80'])
-        >>> ps.update(date(2016, 3, 1), ['120', '80'])
-        >>> ps.update(date(2016, 2, 1), ['120', '80'])
-        >>> print_all(ps)
-        Pressure statistic for all time:
-        2016-03-11 - 120, 80
-        2016-03-01 - 120, 80
-        2016-02-01 - 120, 80
-        >>> ps.table = tmp
         """
         print(self.responses['ps_all'])
         print(self.model)

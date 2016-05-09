@@ -1,64 +1,64 @@
 from datetime import date
 from unittest import TestCase
 from unittest.mock import patch
-from controller import Controller
+from controller_cl import ControllerCL
 
 
-class ControllerTestCase(TestCase):
+class ControllerCLTestCase(TestCase):
 
     @patch('backends.get_pickle.PickleSerializer.read', return_value={})
     def setUp(self, get_mock):
-        self.controller = Controller()
+        self.controller = ControllerCL()
 
     @patch('backends.get_pickle.PickleSerializer.read', return_value={})
     def test__init__(self, get_mock):
-        controller = Controller()
+        controller = ControllerCL()
         self.assertTrue(controller.view is not None)
         self.assertTrue(controller.model is not None)
 
-        controller = Controller(view='view', model='model')
+        controller = ControllerCL(view='view', model='model')
         self.assertEqual(controller.view, 'view')
         self.assertEqual(controller.model, 'model')
 
-    @patch('controller.Controller.input_pressure')
-    @patch('controller.Controller.input_date')
+    @patch('controller_cl.ControllerCL.input_pressure')
+    @patch('controller_cl.ControllerCL.input_date')
     def test_run(self, *mocks):
-        with patch('view.View.get_main_menu_choice', return_value=1):
+        with patch('sys.argv', ['main.py', '-a']):
             with patch('model.PressureStatistics.add', side_effect=Exception()) as add_mock:
                 try:
                     self.controller.run()
                 except:
                     pass
                 self.assertTrue(add_mock.called)
-        with patch('view.View.get_main_menu_choice', return_value=2):
+        with patch('sys.argv', ['main.py', '-u']):
             with patch('model.PressureStatistics.update', side_effect=Exception()) as update_mock:
                 try:
                     self.controller.run()
                 except:
                     pass
                 self.assertTrue(update_mock.called)
-        with patch('view.View.get_main_menu_choice', return_value=3):
+        with patch('sys.argv', ['main.py', '-d']):
             with patch('model.PressureStatistics.delete', side_effect=Exception()) as delete_mock:
                 try:
                     self.controller.run()
                 except:
                     pass
                 self.assertTrue(delete_mock.called)
-        with patch('view.View.get_main_menu_choice', return_value=4):
+        with patch('sys.argv', ['main.py', '-pw']):
             with patch('view.View.print_for_week', side_effect=Exception()) as print_mock:
                 try:
                     self.controller.run()
                 except:
                     pass
                 self.assertTrue(print_mock.called)
-        with patch('view.View.get_main_menu_choice', return_value=5):
+        with patch('sys.argv', ['main.py', '-pm']):
             with patch('view.View.print_for_month', side_effect=Exception()) as print_mock:
                 try:
                     self.controller.run()
                 except:
                     pass
                 self.assertTrue(print_mock.called)
-        with patch('view.View.get_main_menu_choice', return_value=6):
+        with patch('sys.argv', ['main.py', '-p']):
             with patch('view.View.print_all', side_effect=Exception()) as print_mock:
                 try:
                     self.controller.run()
@@ -66,28 +66,13 @@ class ControllerTestCase(TestCase):
                     pass
                 self.assertTrue(print_mock.called)
 
-        with patch('view.View.get_main_menu_choice', return_value=56):
+        with patch('sys.argv', ['main.py']):
             with patch('view.View.print_exception', side_effect=Exception()) as print_mock:
                 try:
                     self.controller.run()
                 except:
                     pass
-                print_mock.assert_called_once_with("Enter value between 1 and 7.")
-        with patch('view.View.get_main_menu_choice', return_value="abcs"):
-            with patch('view.View.print_exception', side_effect=Exception()) as print_mock:
-                try:
-                    self.controller.run()
-                except:
-                    pass
-                print_mock.assert_called_once_with("Wrong value! Enter number.")
-
-        with patch('view.View.get_main_menu_choice', side_effect=Exception("Test")):
-            with patch('view.View.print_exception') as print_mock:
-                try:
-                    self.controller.run()
-                except:
-                    pass
-                self.assertEqual(print_mock.call_count, 1)
+                print_mock.assert_called_once_with(self.controller.view.responses['choose_valid_option'])
 
     def test_input_pressure(self):
         with patch('view.View.get_pressure_choice') as input_mock:

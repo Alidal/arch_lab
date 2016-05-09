@@ -2,13 +2,14 @@
 Controller module. Contains all function, that provides interface functionality.
 """
 import dateutil.parser
+import argparse
 from datetime import date
 
 from model import PressureStatistics
 from view import View
 
 
-class Controller:
+class ControllerCL:
 
     def __init__(self, view=None, model=None):
         """
@@ -29,29 +30,31 @@ class Controller:
         """
         Main interface function. Provides menu functionality.
         """
+        parser = argparse.ArgumentParser()
+        parser.add_argument("-a", "--addtoday", action="store_true")
+        parser.add_argument("-u", "--update", action="store_true")
+        parser.add_argument("-d", "--delete", action="store_true")
+        parser.add_argument("-pw", "--printweek", action="store_true")
+        parser.add_argument("-pm", "--printmonth", action="store_true")
+        parser.add_argument("-p", "--printall", action="store_true")
         while True:
             try:
-                choice = int(self.view.get_main_menu_choice())
-                assert(0 < choice < 8)
-
-                if choice == 1:
+                arguments = parser.parse_args()
+                if arguments.addtoday:
                     self.model.add(self.input_pressure())
-                elif choice == 2:
+                elif arguments.update:
                     self.model.update(self.input_date(), self.input_pressure())
-                elif choice == 3:
+                elif arguments.delete:
                     self.model.delete(self.input_date())
-                elif choice == 4:
+                elif arguments.printweek:
                     self.view.print_for_week()
-                elif choice == 5:
+                elif arguments.printmonth:
                     self.view.print_for_month()
-                elif choice == 6:
+                elif arguments.printall:
                     self.view.print_all()
-                elif choice == 7:
-                    return
-            except ValueError:
-                self.view.print_exception("Wrong value! Enter number.")
-            except AssertionError:
-                self.view.print_exception("Enter value between 1 and 7.")
+                else:
+                    raise Exception(self.view.responses['choose_valid_option'])
+                return
             except Exception as e:
                 self.view.print_exception(e.args[0])
                 return
