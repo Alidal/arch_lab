@@ -6,11 +6,11 @@ from controller import Controller
 
 class ControllerTestCase(TestCase):
 
-    @patch('backends.get_pickle.get', return_value={})
+    @patch('backends.get_pickle.PickleSerializer.read', return_value={})
     def setUp(self, get_mock):
         self.controller = Controller()
 
-    @patch('backends.get_pickle.get', return_value={})
+    @patch('backends.get_pickle.PickleSerializer.read', return_value={})
     def test__init__(self, get_mock):
         controller = Controller()
         self.assertTrue(controller.view is not None)

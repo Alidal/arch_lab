@@ -6,12 +6,12 @@ from model import PressureStatistics
 
 class ModelTestCase(TestCase):
 
-    @patch('backends.get_pickle.get', return_value={})
+    @patch('backends.get_pickle.PickleSerializer.read', return_value={})
     def setUp(self, get_mock):
         self.model = PressureStatistics()
 
     def test__init__(self):
-        with patch('backends.get_pickle.get') as get_mock:
+        with patch('backends.get_pickle.PickleSerializer.read') as get_mock:
             PressureStatistics()
             get_mock.assert_called_once_with()
 
@@ -40,7 +40,7 @@ class ModelTestCase(TestCase):
             self.model.delete(date(2016, 1, 1))
 
     def test_save(self):
-        with patch('backends.get_pickle.set') as set_mock:
+        with patch('backends.get_pickle.PickleSerializer.write') as set_mock:
             self.model.table = {"2016-01-01": ["120", "90"]}
             self.model.save()
             set_mock.assert_called_once_with({"2016-01-01": ["120", "90"]})

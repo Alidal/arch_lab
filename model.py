@@ -2,15 +2,16 @@
 Model module, that contains all functions, that we need to manipulate data.
 """
 import configparser
-import importlib
+from pydoc import locate
 from datetime import date
 
 config = configparser.ConfigParser()
 config.read('config.ini')
-backend = importlib.import_module('backends.get_%s' % config['backend']['type'])
+backend = locate('backends.get_%s.%sSerializer' %\
+    (config['backend']['type'], config['backend']['type'].capitalize()))
 
 
-class PressureStatistics(object):
+class PressureStatistics:
     """
     Class, that provides basic CRUD functionality for arterial pressure info.
     """
@@ -19,13 +20,14 @@ class PressureStatistics(object):
         """
         Initial method, that loads saved pressure statistic from file.
         """
-        self.table = backend.get() or {}
+        self.backend = backend()
+        self.table = self.backend.read() or {}
 
     def save(self):
         """
         Sericalize and save pressure statistics to file on object deletion.
         """
-        backend.set(self.table)
+        self.backend.write(self.table)
 
     def add(self, pressure_list):
         """

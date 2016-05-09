@@ -5,17 +5,21 @@ data and writing.
 import json
 
 
-def get():
-    """
-    Read data from file.
-    """
-    with open("backends/db.json", "r") as json_file:
-        return json.load(json_file)
+class JsonSerializer:
+    def __init__(self, file_name="backends/db.json"):
+        self.file_name = file_name
+
+    def read(self):
+        """
+        Read data from file.
+        """
+        with open(self.file_name, "r") as json_file:
+            return json.load(json_file)
 
 
-def set(_json):
-    """
-    Write passed data to file.
-    """
-    with open("backends/db.json", "w") as json_file:
-        json.dump(_json, json_file)
+    def write(self, _json):
+        """
+        Write passed data to file.
+        """
+        with open(self.file_name, "w") as json_file:
+            json.dump(_json, json_file)

@@ -42,7 +42,7 @@ class ViewTestCase(TestCase):
             result = self.view.get_main_menu_choice_cli()
             self.assertEqual(result, 6)
 
-    @patch('backends.get_pickle.get', return_value={})
+    @patch('backends.get_pickle.PickleSerializer.read', return_value={})
     def test_print_for_time(self, *mocks):
         self.view.model = PressureStatistics()
         self.view.model.update(date(2016, 5, 11), ['120', '80'])
@@ -51,6 +51,6 @@ class ViewTestCase(TestCase):
         out = StringIO()
         import sys
         sys.stdout = out
-        self.view.print_for_time(timedelta(weeks=1))
+        self.view.print_for_time(timedelta(weeks=4))
         expected_result = "2016-05-01 - 120, 80\n2016-05-11 - 120, 80\n"
         self.assertEqual(out.getvalue(), expected_result)
